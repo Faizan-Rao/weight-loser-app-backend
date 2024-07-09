@@ -1,0 +1,32 @@
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+# DATABASE_URL="sqlserver://127.0.0.1:1433;database=weight-losers;integratedSecurity=true;trustServerCertificate=true;"
+# DATABASE_URL="mysql://root:admin123@127.0.0.1:3306/weight-loser-v2"
+# DATABASE_URL="mysql://eminqljx_googlewluser:googlewlpassword@198.54.116.139:2092/eminqljx_googlewldb"
+
+PROJECT_STATE=development
+
+PORT=5000
+ORIGIN=localhost
+HTTP_PROTOCOL=http
+
+
+
+CORS_ORIGIN=*
+
+JWT_SECRET=ThisIsTheSecretTokenForWeightLoserApp
+
+OTP_SENDER=3rdEyeSoft
+OTP_USER_CREDENTIAL=support@weightloser.com
+OTP_USER_PASS=xsmtpsib-d94f33338b8b5dd12bd6516397768afbe28880846538a023a9cd3a61bd0e414f-bRTXAfqNy1UBgGOH
+OTP_POSTMARK_KEY=d21ef8d3-ed56-4012-8a64-20a43ab9a356
+
+
+SESSION_SECERT=ThisIstheSessionSecret
+OAUTH_GOOGLE_CLIENT_ID=303087862588-s5oddf0e1fge0uiso3hbmj6gjsfavksm.apps.googleusercontent.com
+OAUTH_GOOGLE_CLIENT_SECRET=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
+OAUTH_GOOGLE_CALLBACK_URL=http://localhost:5000/api/v1/auth/oath/google/callback
