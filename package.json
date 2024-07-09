@@ -1,0 +1,41 @@
+{
+  "name": "weight-loser-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon -r dotenv/config src/index.js",
+    "db-push": "npx prisma db push && npx prisma generate && npm run start",
+    "db-pull": "npx prisma db pull && npx prisma generate && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.12.1",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "date-fns": "^3.4.0",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "ioredis": "^5.3.2",
+    "joi": "^17.12.1",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.9",
+    "passport": "^0.7.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth2": "^0.2.0",
+    "postmark": "^4.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3",
+    "prettier": "^3.2.4",
+    "prisma": "^5.12.1"
+  }
+}

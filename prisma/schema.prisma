@@ -1,0 +1,895 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activeplan {
+  activeplan_id          BigInt    @default(autoincrement())
+  user_user_id           BigInt
+  plan_plan_id           BigInt
+  activeplan_type        String    @db.VarChar(50)
+  activeplan_is_active   Int       @db.TinyInt
+  activeplan_days        Int
+  activeplan_created_at  DateTime? @db.DateTime(0)
+  activeplan_modified_at DateTime? @db.DateTime(0)
+  activeplan_deleted_at  DateTime? @db.DateTime(0)
+  plan                   plan      @relation(fields: [plan_plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_activeplan_plan1")
+  user                   user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_activeplan_user1")
+
+  @@id([activeplan_id, user_user_id, plan_plan_id])
+  @@index([plan_plan_id], map: "fk_activeplan_plan1_idx")
+  @@index([user_user_id], map: "fk_activeplan_user1_idx")
+}
+
+model breakfast {
+  breakfast_id           BigInt    @id @default(autoincrement())
+  food_food_id           BigInt
+  breakfast_serving_size Int
+  breakfast_calories     Int?
+  breakfast_fats         Float
+  breakfast_protein      Float
+  breakfast_carbs        Float
+  breakfast_date         DateTime  @db.DateTime(0)
+  breakfast_created_at   DateTime? @db.DateTime(0)
+  breakfast_modified_at  DateTime? @db.DateTime(0)
+  breakfast_deleted_at   DateTime? @db.DateTime(0)
+  food                   food      @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_breakfast_food1")
+  history                history[]
+
+  @@index([food_food_id], map: "fk_breakfast_food1_idx")
+}
+
+model budget {
+  budget_id               BigInt    @id @default(autoincrement())
+  user_user_id            BigInt
+  budget_consume_calories Int?      @default(0)
+  budget_burn_calories    Int?      @default(0)
+  budget_total_fat        Float
+  budget_protein          Float
+  budget_carbs            Float
+  budget_diet_score       Float
+  budget_created_at       DateTime? @db.DateTime(0)
+  budget_modfied_at       DateTime? @db.DateTime(0)
+  budget_deleted_at       DateTime? @db.DateTime(0)
+  breakfast_breakfast_id  BigInt?
+  dinner_dinner_id        BigInt?
+  lunch_lunch_id          BigInt?
+  snack_snack_id          BigInt?
+  exercise_exercise_id    BigInt?
+  water_water_id          BigInt?
+  user                    user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_budget_user1")
+
+  @@index([user_user_id], map: "fk_budget_user1_idx")
+}
+
+model category {
+  category_id          BigInt    @id @default(autoincrement())
+  category_name        String    @db.VarChar(100)
+  category_type        String    @db.VarChar(50)
+  category_image       String?   @db.VarChar(500)
+  category_is_featured Boolean   @db.Bit(1)
+  category_created_at  DateTime? @db.DateTime(0)
+  category_modified_at DateTime? @db.DateTime(0)
+  category_deleted_at  DateTime? @db.DateTime(0)
+  plan                 plan[]
+}
+
+model challenge {
+  challenge_id          BigInt           @unique @default(autoincrement())
+  exercise_exercise_id  BigInt
+  user_user_id          BigInt
+  challenge_name        String           @db.VarChar(100)
+  category_category_id  BigInt?
+  challenge_filename    String?          @db.Text
+  challenge_created_at  DateTime?        @db.DateTime(0)
+  challenge_modified_at DateTime?        @db.DateTime(0)
+  challenge_deleted_at  DateTime?        @db.DateTime(0)
+  exercise              exercise         @relation(fields: [exercise_exercise_id], references: [exercise_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_challenge_exercise1")
+  user                  user             @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_challenge_user1")
+  challenge_slot        challenge_slot[]
+
+  @@id([challenge_id, exercise_exercise_id, user_user_id])
+  @@index([exercise_exercise_id], map: "fk_challenge_exercise1_idx")
+  @@index([user_user_id], map: "fk_challenge_user1_idx")
+}
+
+model challenge_participant {
+  challenge_participant_id          BigInt         @id @default(autoincrement())
+  challenge_slot_challenge_slot_id  BigInt
+  challenge_participant_participant BigInt
+  challenge_participant_target      BigInt?
+  challenge_participant_created_at  DateTime?      @db.DateTime(0)
+  challenge_participant_modified_at DateTime?      @db.DateTime(0)
+  challenge_participant_deleted_at  DateTime?      @db.DateTime(0)
+  challenge_slot                    challenge_slot @relation(fields: [challenge_slot_challenge_slot_id], references: [challenge_slot_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_challenge_participant_challenge_slot1")
+
+  @@index([challenge_slot_challenge_slot_id], map: "fk_challenge_participant_challenge_slot1_idx")
+}
+
+model challenge_slot {
+  challenge_slot_id          BigInt                  @id @default(autoincrement())
+  challenge_challenge_id     BigInt
+  challenge_slot_start_at    DateTime                @db.DateTime(0)
+  challenge_slot_duration    Int
+  challenge_slot_distance    Int
+  challenge_slot_is_active   Boolean                 @db.Bit(1)
+  challenge_slot_created_at  DateTime?               @db.DateTime(0)
+  challenge_slot_modified_at DateTime?               @db.DateTime(0)
+  challenge_slot_deleted_at  DateTime?               @db.DateTime(0)
+  challenge_participant      challenge_participant[]
+  challenge                  challenge               @relation(fields: [challenge_challenge_id], references: [challenge_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_challenge_slot_challenge1")
+
+  @@index([challenge_challenge_id], map: "fk_challenge_slot_challenge1_idx")
+}
+
+model chat_detail {
+  chat_detail_id          BigInt    @id @default(autoincrement())
+  chatpost_chatpost_id    BigInt
+  chat_detail_like        Boolean?  @db.Bit(1)
+  chat_detail_comment     String?   @db.Text
+  user_user_id            BigInt
+  chat_detail_created_at  DateTime? @db.DateTime(0)
+  chat_detail_modified_at DateTime? @db.DateTime(0)
+  chat_detail_deleted_at  DateTime? @db.DateTime(0)
+  chatpost                chatpost  @relation(fields: [chatpost_chatpost_id], references: [chatpost_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chat_detail_chatpost1")
+
+  @@index([chatpost_chatpost_id], map: "fk_chat_detail_chatpost1_idx")
+}
+
+model chat_file {
+  chat_file_id          BigInt    @id @default(autoincrement())
+  chat_file_name        String    @db.Text
+  user_user_id          BigInt
+  chat_file_created_at  DateTime? @db.DateTime(0)
+  chat_file_modified_at DateTime? @db.DateTime(0)
+  chat_file_deleted_at  DateTime? @db.DateTime(0)
+  chatpost_chatpost_id  BigInt
+
+  @@index([user_user_id], map: "fk_chat_file_user1_idx")
+  @@index([chatpost_chatpost_id], map: "fk_chatpost_user1_idx")
+}
+
+model chatpost {
+  chatpost_id          BigInt        @id @default(autoincrement())
+  user_user_id         BigInt
+  chatpost_text        String        @db.Text
+  chatpost_is_staff    Boolean?      @db.Bit(1)
+  chatpost_category    String?       @db.Text
+  chatpost_created_at  DateTime?     @db.DateTime(0)
+  chatpost_modified_at DateTime?     @db.DateTime(0)
+  chatpost_deleted_at  DateTime?     @db.DateTime(0)
+  chat_detail          chat_detail[]
+  user                 user          @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chatpost_user1")
+  chatsave             chatsave[]
+
+  @@index([user_user_id], map: "fk_chatpost_user1_idx")
+}
+
+model chatsave {
+  chatsave_id          BigInt    @default(autoincrement())
+  chatpost_chatpost_id BigInt
+  user_user_id         BigInt
+  chatpost_is_saved    Int       @db.TinyInt
+  chatpost_created_at  DateTime? @db.DateTime(0)
+  chatpost_modified_at DateTime? @db.DateTime(0)
+  chatpost_datetime_at DateTime? @db.DateTime(0)
+  chatpost             chatpost  @relation(fields: [chatpost_chatpost_id], references: [chatpost_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chatsave_chatpost1")
+  user                 user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chatsave_user1")
+
+  @@id([chatsave_id, chatpost_chatpost_id, user_user_id])
+  @@index([chatpost_chatpost_id], map: "fk_chatsave_chatpost1_idx")
+  @@index([user_user_id], map: "fk_chatsave_user1_idx")
+}
+
+model cheatfood {
+  cheatfood_id             BigInt    @id @default(autoincrement())
+  user_user_id             BigInt
+  cheatfood_name           String?
+  cheatfood_taken_date     DateTime  @db.DateTime(0)
+  cheatfood_total_calories Float
+  cheatfood_created_at     DateTime? @db.DateTime(0)
+  cheatfood_modified_at    DateTime? @db.DateTime(0)
+  cheatfood_deleted_at     DateTime? @db.DateTime(0)
+  user                     user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cheatfood_user1")
+
+  @@index([user_user_id], map: "fk_cheatfood_user1_idx")
+}
+
+model coupon {
+  coupon_id              BigInt    @id @default(autoincrement())
+  user_user_id           BigInt?
+  coupon_name            String    @db.VarChar(50)
+  coupon_number          String    @db.VarChar(30)
+  coupon_amount          Float
+  coupon_percent         Float
+  coupon_discount_amount Float
+  coupon_expire_date     DateTime  @db.DateTime(0)
+  coupon_status          Int       @db.TinyInt
+  coupon_created_at      DateTime? @db.DateTime(0)
+  coupon_modified_at     DateTime? @db.DateTime(0)
+  coupon_deleted_at      DateTime? @db.DateTime(0)
+  user                   user?     @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_coupon_user1")
+
+  @@index([user_user_id], map: "fk_coupon_user1_idx")
+}
+
+model dinner {
+  dinner_id           BigInt    @id @default(autoincrement())
+  food_food_id        BigInt
+  dinner_serving_size Int
+  dinner_calories     Int?
+  dinner_fat          Float
+  dinner_protein      Float
+  dinner_carbs        Float
+  dinner_date         DateTime  @db.DateTime(0)
+  dinner_created_at   DateTime? @db.DateTime(0)
+  dinner_modified_at  DateTime? @db.DateTime(0)
+  dinner_deleted_at   DateTime? @db.DateTime(0)
+  food                food      @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_dinner_food1")
+  history             history[]
+
+  @@index([food_food_id], map: "fk_dinner_food1_idx")
+}
+
+model exercise {
+  exercise_id             BigInt                  @id @default(autoincrement())
+  exercise_burner_type    String                  @db.Text
+  exercise_name           String                  @db.VarChar(50)
+  exercise_description    String?                 @db.VarChar(100)
+  exercise_calorie_burn   Float
+  exercise_filename       String?                 @db.VarChar(500)
+  exercise_video_file     String?                 @db.Text
+  exercise_type           String?                 @db.Text
+  exercise_category       String?                 @db.Text
+  exercise_video_duration Int
+  exercise_created_at     DateTime?               @db.DateTime(0)
+  exercise_modified_at    DateTime?               @db.DateTime(0)
+  exercise_deleted_at     DateTime?               @db.DateTime(0)
+  challenge               challenge[]
+  exercise_plan           exercise_plan[]
+  user_exercise           user_exercise[]
+  user_exercise_history   user_exercise_history[]
+}
+
+model exercise_plan {
+  exercise_plan_id          BigInt    @default(autoincrement())
+  exercise_exercise_id      BigInt
+  plan_plan_id              BigInt
+  exercise_plan_day         Int
+  exercise_plan_title       String    @db.VarChar(100)
+  exercise_plan_sets        Int
+  exercise_plan_phase       Int
+  exercise_plan_created_at  DateTime? @db.DateTime(0)
+  exercise_plan_modified_at DateTime? @db.DateTime(0)
+  exercise_plan_deleted_at  DateTime? @db.DateTime(0)
+  exercise                  exercise  @relation(fields: [exercise_exercise_id], references: [exercise_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_exercise_plan_exercise1")
+  plan                      plan      @relation(fields: [plan_plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_exercise_plan_plan1")
+
+  @@id([exercise_plan_id, exercise_exercise_id, plan_plan_id])
+  @@index([exercise_exercise_id], map: "fk_exercise_plan_exercise1_idx")
+  @@index([plan_plan_id], map: "fk_exercise_plan_plan1_idx")
+}
+
+model favourite {
+  favourite_id          BigInt    @id @default(autoincrement())
+  favourite_category    String    @db.Text
+  favourite_parent      BigInt
+  favourite_child       BigInt?
+  user_user_id          BigInt
+  favourite_created_at  DateTime? @db.DateTime(0)
+  favourite_modified_at DateTime? @db.DateTime(0)
+  favourite_deleted_at  DateTime? @db.DateTime(0)
+  user                  user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_favourite_user1")
+
+  @@index([user_user_id], map: "fk_favourite_user1_idx")
+}
+
+model food {
+  food_id                     BigInt           @id @default(autoincrement())
+  food_name                   String           @db.VarChar(50)
+  food_description            String?          @db.Text
+  food_filename               String?          @db.VarChar(500)
+  food_serving_size           Int?
+  food_household_serving_size String?          @db.VarChar(50)
+  food_fat                    Float?
+  food_protein                Float?
+  food_carbs                  Float?
+  food_calories               Int?
+  food_created_at             DateTime?        @db.DateTime(0)
+  food_modified_at            DateTime?        @db.DateTime(0)
+  food_deleted_at             DateTime?        @db.DateTime(0)
+  breakfast                   breakfast[]
+  dinner                      dinner[]
+  food_detail                 food_detail[]
+  foodplan                    foodplan[]
+  lunch                       lunch[]
+  reciepe_detail              reciepe_detail[]
+  snacks                      snacks[]
+}
+
+model food_detail {
+  food_detail_id            BigInt         @id @default(autoincrement())
+  food_food_id              BigInt
+  food_detail_procedure     String?        @db.VarChar(2000)
+  food_detail_allergic_food String?        @db.VarChar(500)
+  food_detail_is_allergic   Int            @db.TinyInt
+  food_detail_created_at    DateTime?      @db.DateTime(0)
+  food_detail_modified_at   DateTime?      @db.DateTime(0)
+  food_detail_deleted_at    DateTime?      @db.DateTime(0)
+  food                      food           @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_food_detail_food1")
+  grocery_list              grocery_list[]
+  ingredient                ingredient[]
+
+  @@index([food_food_id], map: "fk_food_detail_food1_idx")
+}
+
+model foodplan {
+  foodplan_id           BigInt    @default(autoincrement())
+  food_food_id          BigInt
+  plan_plan_id          BigInt
+  foodplan_day          Int
+  foodplan_meal_type    String    @db.VarChar(20)
+  foodplan_serving_size Int
+  foodplan_phase        Int
+  foodplan_created_at   DateTime? @db.DateTime(0)
+  foodplan_modified_at  DateTime? @db.DateTime(0)
+  foodplan_deleted_at   DateTime? @db.DateTime(0)
+  food                  food      @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_foodplan_food1")
+  plan                  plan      @relation(fields: [plan_plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_foodplan_plan1")
+
+  @@id([foodplan_id, food_food_id, plan_plan_id])
+  @@index([food_food_id], map: "fk_foodplan_food1_idx")
+  @@index([plan_plan_id], map: "fk_foodplan_plan1_idx")
+}
+
+model grocery_list {
+  grocery_list_id            BigInt         @id @default(autoincrement())
+  grocery_list_category      String         @db.VarChar(50)
+  grocery_list_item          String         @db.VarChar(2000)
+  food_detail_food_detail_id BigInt
+  grocery_list_is_active     Boolean        @db.Bit(1)
+  grocery_list_created_at    DateTime?      @db.DateTime(0)
+  grocery_list_modified_at   DateTime?      @db.DateTime(0)
+  grocery_list_deleted_at    DateTime?      @db.DateTime(0)
+  food_detail                food_detail    @relation(fields: [food_detail_food_detail_id], references: [food_detail_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_grocery_list_food_detail1")
+  user_grocery               user_grocery[]
+
+  @@index([food_detail_food_detail_id], map: "fk_grocery_list_food_detail1_idx")
+}
+
+model history {
+  history_id             BigInt     @default(autoincrement())
+  user_user_id           BigInt
+  breakfast_breakfast_id BigInt?
+  lunch_lunch_id         BigInt?
+  dinner_dinner_id       BigInt?
+  snack_snack_id         BigInt?
+  history_type           String?    @db.VarChar(30)
+  water_water_id         BigInt?
+  plan_plan_id           BigInt?
+  history_created_at     DateTime?  @db.DateTime(0)
+  history_modified_at    DateTime?  @db.DateTime(0)
+  history_deleted_at     DateTime?  @db.DateTime(0)
+  breakfast              breakfast? @relation(fields: [breakfast_breakfast_id], references: [breakfast_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_history_breakfast1")
+  dinner                 dinner?    @relation(fields: [dinner_dinner_id], references: [dinner_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_history_dinner1")
+  lunch                  lunch?     @relation(fields: [lunch_lunch_id], references: [lunch_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_history_lunch1")
+  snacks                 snacks?    @relation(fields: [snack_snack_id], references: [snack_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_history_snacks1")
+  user                   user       @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_history_user1")
+  water                  water?     @relation(fields: [water_water_id], references: [water_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_history_water1")
+
+  @@id([history_id, user_user_id])
+  @@index([breakfast_breakfast_id], map: "fk_history_breakfast1_idx")
+  @@index([dinner_dinner_id], map: "fk_history_dinner1_idx")
+  @@index([lunch_lunch_id], map: "fk_history_lunch1_idx")
+  @@index([snack_snack_id], map: "fk_history_snacks1_idx")
+  @@index([user_user_id], map: "fk_history_user1_idx")
+  @@index([water_water_id], map: "fk_history_water1_idx")
+}
+
+model ingredient {
+  ingredient_id              BigInt      @id @default(autoincrement())
+  food_detail_food_detail_id BigInt
+  ingredient_name            String      @db.Text
+  ingredient_quantity        String?     @db.Text
+  ingredient_created_at      DateTime?   @db.DateTime(0)
+  ingredient_modified_at     DateTime?   @db.DateTime(0)
+  ingredient_deleted_at      DateTime?   @db.DateTime(0)
+  food_detail                food_detail @relation(fields: [food_detail_food_detail_id], references: [food_detail_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ingredient_food_detail1")
+
+  @@index([food_detail_food_detail_id], map: "fk_ingredient_food_detail1_idx")
+}
+
+model login_status {
+  login_status_id          BigInt    @id @default(autoincrement())
+  user_user_id             BigInt    @unique
+  login_status_is_active   Boolean   @db.Bit(1)
+  login_status_created_at  DateTime? @db.DateTime(0)
+  login_status_modified_at DateTime? @db.DateTime(0)
+  login_status_deleted_at  DateTime? @db.DateTime(0)
+  user                     user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_login_status_user1")
+
+  @@index([user_user_id], map: "fk_login_status_user1_idx")
+}
+
+model lunch {
+  lunch_id           BigInt    @id @default(autoincrement())
+  food_food_id       BigInt
+  lunch_serving_size Int
+  lunch_calories     Int?
+  lunch_fat          Float
+  lunch_protein      Float
+  lunch_carbs        Float
+  lunch_sodium       Float
+  lunch_date         DateTime  @db.DateTime(0)
+  lunch_created_at   DateTime? @db.DateTime(0)
+  lunch_modified_at  DateTime? @db.DateTime(0)
+  lunch_deleted_at   DateTime? @db.DateTime(0)
+  history            history[]
+  food               food      @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_lunch_food1")
+
+  @@index([food_food_id], map: "fk_lunch_food1_idx")
+}
+
+model mind_plan {
+  mindplan_id          BigInt    @id @default(autoincrement())
+  video_video_id       BigInt
+  plan_plan_id         BigInt
+  mindplan_day         Int
+  mindplan_title       String    @db.VarChar(10)
+  mindplan_set         Int
+  mindplan_phase       Int
+  mindplan_created_at  DateTime? @db.DateTime(0)
+  mindplan_modified_at DateTime? @db.DateTime(0)
+  mindplan_deleted_at  DateTime? @db.DateTime(0)
+  plan                 plan      @relation(fields: [plan_plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_mind_plan_plan1")
+  video                video     @relation(fields: [video_video_id], references: [video_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_mind_plan_video1")
+
+  @@index([plan_plan_id], map: "fk_mind_plan_plan1_idx")
+  @@index([video_video_id], map: "fk_mind_plan_video1_idx")
+}
+
+model option {
+  option_id                    BigInt       @id @default(autoincrement())
+  option_title                 String       @db.Text
+  option_filename              String?      @db.Text
+  option_created_at            DateTime?    @db.DateTime(0)
+  option_modified_at           DateTime?    @db.DateTime(0)
+  option_deleted_at            DateTime?    @db.DateTime(0)
+  questionaire_questionaire_id BigInt
+  questionaire                 questionaire @relation(fields: [questionaire_questionaire_id], references: [questionaire_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_option_questionaire1")
+
+  @@index([questionaire_questionaire_id], map: "fk_option_questionaire1_idx")
+}
+
+model otp {
+  otp_id          BigInt    @id @default(autoincrement())
+  otp_code        String    @db.VarChar(10)
+  user_user_id    BigInt    @unique
+  otp_status      Int       @db.TinyInt
+  otp_created_at  DateTime? @db.DateTime(0)
+  otp_modified_at DateTime? @db.DateTime(0)
+  otp_deleted_at  DateTime? @db.DateTime(0)
+  user            user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_otp_user1")
+
+  @@index([user_user_id], map: "fk_otp_user1_idx")
+}
+
+model packages {
+  package_id            BigInt                  @id @default(autoincrement())
+  package_title         String                  @db.VarChar(100)
+  package_description   String                  @db.VarChar(500)
+  package_price         Float                   @db.Float
+  package_duration      Int
+  package_discount      Int?                    @default(0)
+  package_created_at    DateTime?               @map("package_created-at") @db.DateTime(0)
+  package_modified_at   DateTime?               @db.DateTime(0)
+  package_deleted_at    DateTime?               @db.DateTime(0)
+  user_purchase_package user_purchase_package[]
+}
+
+model page {
+  page_id          BigInt    @id @default(autoincrement())
+  page_title       String
+  page_content     String
+  page_slug        String
+  page_created_at  DateTime? @db.DateTime(0)
+  page_modified_at DateTime? @db.DateTime(0)
+  page_deleted_at  DateTime? @db.DateTime(0)
+}
+
+model plan {
+  plan_id               BigInt                  @id @default(autoincrement())
+  plan_type             String                  @db.VarChar(50)
+  plan_title            String                  @db.VarChar(50)
+  category_category_id  BigInt
+  plan_description      String?                 @db.VarChar(1000)
+  plan_filename         String?                 @db.VarChar(500)
+  plan_duration         Int
+  plan_cuisine          String                  @db.VarChar(50)
+  plan_is_active        Int                     @db.TinyInt
+  plan_created_at       DateTime?               @db.DateTime(0)
+  plan_modfied_at       DateTime?               @db.DateTime(0)
+  plan_deleted_at       DateTime?               @db.DateTime(0)
+  activeplan            activeplan[]
+  exercise_plan         exercise_plan[]
+  foodplan              foodplan[]
+  mind_plan             mind_plan[]
+  category              category                @relation(fields: [category_category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_category1")
+  user_exercise_history user_exercise_history[]
+
+  @@index([category_category_id], map: "fk_plan_category1_idx")
+}
+
+model questionaire {
+  questionaire_id            BigInt        @id @default(autoincrement())
+  questionaire_type          String?       @db.VarChar(200)
+  questionaire_question      String        @db.VarChar(500)
+  questionaire_title         String?       @db.VarChar(50)
+  questionaire_filename      String?       @db.Text
+  questionaire_order         Int
+  questionaire_question_code BigInt
+  questionaire_created_at    DateTime?     @db.DateTime(0)
+  questionaire_modified_at   DateTime?     @db.DateTime(0)
+  questionaire_deleted_at    DateTime?     @db.DateTime(0)
+  questionaire_explanation   String?       @db.Text
+  questionaire_right_answer  String?       @db.Text
+  option                     option[]
+  user_answer                user_answer[]
+}
+
+model quote {
+  quote_id          BigInt    @id @default(autoincrement())
+  quote_text        String    @db.VarChar(500)
+  quote_type        String?   @db.VarChar(50)
+  quote_is_active   Boolean   @db.Bit(1)
+  quote_day         Int
+  quote_created_at  DateTime? @db.DateTime(0)
+  quote_modified_at DateTime? @db.DateTime(0)
+  quote_deleted_at  DateTime? @db.DateTime(0)
+}
+
+model reciepe {
+  reciepe_id             BigInt    @id @default(autoincrement())
+  reciepe_type           String?   @db.VarChar(50)
+  reciepe_title          String    @db.VarChar(100)
+  reciepe_serving_size   String?   @db.VarChar(50)
+  reciepe_filename       String?   @db.VarChar(500)
+  reciepe_serving_number Int
+  reciepe_calories       Int
+  reciepe_fat            Float
+  reciepe_protein        Float
+  reciepe_carbs          Float
+  user_user_id           BigInt
+  reciepe_created_at     DateTime? @db.DateTime(0)
+  reciepe_modified_at    DateTime? @db.DateTime(0)
+  reciepe_deleted_at     DateTime? @db.DateTime(0)
+  user                   user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reciepe_user1")
+
+  @@index([user_user_id], map: "fk_reciepe_user1_idx")
+}
+
+model reciepe_detail {
+  reciepe_detail_id             BigInt    @id @default(autoincrement())
+  food_food_id                  BigInt
+  reciepe_reciepe_id            BigInt
+  reciepe_detail_serving_number Int
+  reciepe_detail_created_at     DateTime? @db.DateTime(0)
+  reciepe_detail_modified_at    DateTime? @db.DateTime(0)
+  reciepe_detail_deleted_at     DateTime? @db.DateTime(0)
+  food                          food      @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reciepe_detail_food1")
+
+  @@index([food_food_id], map: "fk_reciepe_detail_food1_idx")
+}
+
+model selfie {
+  selfie_id          BigInt    @id @default(autoincrement())
+  user_user_id       BigInt
+  selfie_waist       Float
+  selfie_date        DateTime  @db.DateTime(0)
+  selfie_filename    String?   @db.Text
+  selfie_created_at  DateTime? @db.DateTime(0)
+  selfie_modified_at DateTime? @db.DateTime(0)
+  selfie_deleted_at  DateTime? @db.DateTime(0)
+  selfie_weight      Int
+  user               user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_selfie_user1")
+
+  @@index([user_user_id], map: "fk_selfie_user1_idx")
+}
+
+model sleep {
+  sleep_id          BigInt    @id @default(autoincrement())
+  sleep_mood_type   String?   @db.VarChar(200)
+  sleep_start_time  DateTime? @db.DateTime(0)
+  sleep_awake_time  DateTime? @db.DateTime(0)
+  sleep_total_sleep DateTime? @db.DateTime(0)
+  user_user_id      BigInt
+  sleep_created_at  DateTime? @db.DateTime(0)
+  sleep_modified_at DateTime? @db.DateTime(0)
+  user              user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sleep_user1")
+
+  @@index([user_user_id], map: "fk_sleep_user1_idx")
+}
+
+model snacks {
+  snack_id           BigInt    @id @default(autoincrement())
+  food_food_id       BigInt
+  snack_serving_size Int
+  snack_calories     Int?
+  snack_fat          Float
+  snack_protein      Float
+  snack_carbs        Float
+  snack_date         DateTime  @db.DateTime(0)
+  snack_created_at   DateTime? @db.DateTime(0)
+  snack_modified_at  DateTime? @db.DateTime(0)
+  snack_deleted_at   DateTime? @db.DateTime(0)
+  history            history[]
+  food               food      @relation(fields: [food_food_id], references: [food_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_snacks_food1")
+
+  @@index([food_food_id], map: "fk_snacks_food1_idx")
+}
+
+model taskdairy {
+  task_diary_id           BigInt    @default(autoincrement())
+  user_user_id            BigInt
+  todo_todo_id            BigInt
+  task_diary_is_completed Int       @db.TinyInt
+  task_diary_created_at   DateTime? @db.DateTime(0)
+  task_diary_modified_at  DateTime? @db.DateTime(0)
+  task_diary_deleted      DateTime? @db.DateTime(0)
+  task_diary_status       String?   @db.VarChar(45)
+  todo                    todo      @relation(fields: [todo_todo_id], references: [todo_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_taskdairy_todo1")
+  user                    user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_taskdairy_user1")
+
+  @@id([task_diary_id, user_user_id, todo_todo_id])
+  @@index([todo_todo_id], map: "fk_taskdairy_todo1_idx")
+  @@index([user_user_id], map: "fk_taskdairy_user1_idx")
+}
+
+model technicalsupport {
+  technicalsupport_id          BigInt    @id @default(autoincrement())
+  user_user_id                 BigInt?
+  user_admin_user_id           BigInt?
+  technicalsupport_text        String?   @db.Text
+  technicalsupport_filename    String?   @db.Text
+  technicalsupport_created_at  DateTime? @db.DateTime(0)
+  technicalsupport_modified_at DateTime? @db.DateTime(0)
+  technicalsupport_deleted_at  DateTime? @db.DateTime(0)
+}
+
+model todo {
+  todo_id          BigInt      @id @default(autoincrement())
+  todo_title       String      @db.Text
+  todo_description String?     @db.Text
+  todo_duration    Int?
+  todo_filename    String      @db.Text
+  todo_created_at  DateTime?   @db.DateTime(0)
+  todo_modified_at DateTime?   @db.DateTime(0)
+  todo_deleted_at  DateTime?   @db.DateTime(0)
+  taskdairy        taskdairy[]
+}
+
+model transactions {
+  transaction_id          BigInt    @id @default(autoincrement())
+  transaction_source      String    @db.Text
+  transaction_amount      Float
+  transaction_status      String    @db.VarChar(45)
+  transaction_date        DateTime  @db.DateTime(0)
+  transaction_created_at  DateTime? @db.DateTime(0)
+  transaction_modified_at DateTime? @db.DateTime(0)
+  transaction_deleted_at  DateTime? @db.DateTime(0)
+  user_user_Id            BigInt
+  user                    user      @relation(fields: [user_user_Id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transactions_user")
+
+  @@index([user_user_Id], map: "fk_transactions_user_idx")
+}
+
+model user {
+  user_id                    BigInt                  @id @default(autoincrement())
+  user_name                  String?                 @db.VarChar(50)
+  user_email                 String                  @unique @db.VarChar(50)
+  user_password              String?                 @db.VarChar(255)
+  user_firstname             String?                 @db.VarChar(50)
+  user_lastname              String?                 @db.VarChar(50)
+  user_gender                String?                 @db.VarChar(10)
+  user_zipcode               String?                 @db.VarChar(20)
+  user_age                   Int?
+  user_weight                Float?
+  user_target_weight         Float?
+  user_target_weight_unit    String?                 @db.VarChar(10)
+  user_weight_unit           String?                 @db.VarChar(10)
+  user_height_unit           String?                 @db.VarChar(10)
+  user_height                Float?
+  user_cheat_score           Float?
+  user_progress              Int?
+  user_date_of_brith         DateTime?               @db.DateTime(0)
+  user_is_email_verify       Int?                    @db.TinyInt
+  user_is_oath_taken         Int?                    @db.TinyInt
+  user_is_pregnant           Int?                    @db.TinyInt
+  user_reason_to_loss_weight String?                 @db.Text
+  user_is_account_active     Int?                    @db.TinyInt
+  user_role                  Int?                    @db.TinyInt
+  user_target_date           DateTime?               @db.DateTime(0)
+  user_created_at            DateTime?               @db.DateTime(0)
+  user_modified_at           DateTime?               @db.DateTime(0)
+  user_deleted_at            DateTime?               @db.DateTime(0)
+  user_review                String?
+  activeplan                 activeplan[]
+  budget                     budget[]
+  challenge                  challenge[]
+  chatpost                   chatpost[]
+  chatsave                   chatsave[]
+  cheatfood                  cheatfood[]
+  coupon                     coupon[]
+  favourite                  favourite[]
+  history                    history[]
+  login_status               login_status?
+  otp                        otp?
+  reciepe                    reciepe[]
+  selfie                     selfie[]
+  sleep                      sleep[]
+  taskdairy                  taskdairy[]
+  transactions               transactions[]
+  user_answer                user_answer[]
+  user_exercise              user_exercise[]
+  user_exercise_history      user_exercise_history[]
+  user_grocery               user_grocery[]
+  user_page_history          user_page_history[]
+  user_profile               user_profile?
+  user_purchase_package      user_purchase_package[]
+}
+
+model user_answer {
+  user_answer_id               BigInt       @default(autoincrement())
+  user_user_id                 BigInt
+  questionaire_questionaire_id BigInt
+  user_answer_answer           String       @db.Text
+  user_answer_question_code    BigInt?
+  user_answer_created_at       DateTime?    @db.DateTime(0)
+  user_answer_modified_at      DateTime?    @db.DateTime(0)
+  user_answer_deleted_at       DateTime?    @db.DateTime(0)
+  questionaire                 questionaire @relation(fields: [questionaire_questionaire_id], references: [questionaire_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_answer_questionaire1")
+  user                         user         @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_answer_user1")
+
+  @@id([user_answer_id, user_user_id, questionaire_questionaire_id])
+  @@index([questionaire_questionaire_id], map: "fk_user_answer_questionaire1_idx")
+  @@index([user_user_id], map: "fk_user_answer_user1_idx")
+}
+
+model user_exercise {
+  user_exercise_id          BigInt    @default(autoincrement())
+  exercise_exercise_id      BigInt
+  user_user_id              BigInt
+  user_exercise_date        DateTime  @db.DateTime(0)
+  user_exercise_duration    Int?
+  user_exercise_calories    Int?
+  user_exercise_created_at  DateTime? @db.DateTime(0)
+  user_exercise_modified_at DateTime? @db.DateTime(0)
+  user_exercise_deleted_at  DateTime? @db.DateTime(0)
+  exercise                  exercise  @relation(fields: [exercise_exercise_id], references: [exercise_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_exercise_exercise1")
+  user                      user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_exercise_user1")
+
+  @@id([user_exercise_id, exercise_exercise_id, user_user_id])
+  @@index([exercise_exercise_id], map: "fk_user_exercise_exercise1_idx")
+  @@index([user_user_id], map: "fk_user_exercise_user1_idx")
+}
+
+model user_exercise_history {
+  user_exercise_history_id          BigInt    @default(autoincrement())
+  user_user_id                      BigInt
+  user_exercise_history_type        String    @db.VarChar(30)
+  exercise_exercise_id              BigInt
+  video_video_id                    BigInt?
+  user_exercise_history_duration    BigInt?
+  plan_plan_id                      BigInt
+  user_exercise_history_created_at  DateTime? @db.DateTime(0)
+  user_exercise_history_modified_at DateTime? @db.DateTime(0)
+  user_exercise_history_deleted_at  DateTime? @db.DateTime(0)
+  exercise                          exercise  @relation(fields: [exercise_exercise_id], references: [exercise_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_exercise_history_exercise1")
+  plan                              plan      @relation(fields: [plan_plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_exercise_history_plan1")
+  user                              user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_exercise_history_user1")
+  video                             video?    @relation(fields: [video_video_id], references: [video_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_exercise_history_video1")
+
+  @@id([user_exercise_history_id, plan_plan_id, user_user_id, exercise_exercise_id])
+  @@index([exercise_exercise_id], map: "fk_user_exercise_history_exercise1_idx")
+  @@index([plan_plan_id], map: "fk_user_exercise_history_plan1_idx")
+  @@index([user_user_id], map: "fk_user_exercise_history_user1_idx")
+  @@index([video_video_id], map: "fk_user_exercise_history_video1_idx")
+}
+
+model user_grocery {
+  user_grocery_id              BigInt       @default(autoincrement())
+  user_user_id                 BigInt
+  grocery_list_grocery_list_id BigInt
+  user_grocery_is_purchased    Int          @db.TinyInt
+  user_grocery_created_at      DateTime?    @db.DateTime(0)
+  user_grocery_modified_at     DateTime?    @db.DateTime(0)
+  user_grocery_deleted_at      DateTime?    @db.DateTime(0)
+  grocery_list                 grocery_list @relation(fields: [grocery_list_grocery_list_id], references: [grocery_list_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_grocery_grocery_list1")
+  user                         user         @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_grocery_user1")
+
+  @@id([user_grocery_id, user_user_id, grocery_list_grocery_list_id])
+  @@index([grocery_list_grocery_list_id], map: "fk_user_grocery_grocery_list1_idx")
+  @@index([user_user_id], map: "fk_user_grocery_user1_idx")
+}
+
+model user_page_history {
+  page_history_id             BigInt    @id @default(autoincrement())
+  page_history_name           String    @db.Text
+  page_history_question_order String?   @db.Text
+  page_history_cbt_category   String?   @db.Text
+  page_history_created_at     DateTime? @db.DateTime(0)
+  page_history_modified_at    DateTime? @db.DateTime(0)
+  page_history_deleted_at     DateTime? @db.DateTime(0)
+  user_user_Id                BigInt
+  user                        user      @relation(fields: [user_user_Id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_page_history_user1")
+
+  @@index([user_user_Id], map: "fk_user_page_history_user1_idx")
+}
+
+model user_profile {
+  user_profile_id          BigInt    @id @default(autoincrement())
+  user_user_id             BigInt    @unique
+  user_profile_name        String    @db.Text
+  user_profile_location    String?   @db.Text
+  user_profile_mobile      String?   @db.Text
+  user_profile_image       String?   @db.Text
+  user_profile_created_at  DateTime? @db.DateTime(0)
+  user_profile_modified_at DateTime? @db.DateTime(0)
+  user_profile_deleted_at  DateTime? @db.DateTime(0)
+  user                     user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_profile_user1")
+
+  @@index([user_user_id], map: "fk_user_profile_user1_idx")
+}
+
+model user_purchase_package {
+  purchase_id            BigInt    @default(autoincrement())
+  package_package_id     BigInt
+  user_user_id           BigInt
+  purchase_amount        Float
+  purchase_starting_date DateTime  @db.DateTime(0)
+  purchase_ending_date   DateTime  @db.DateTime(0)
+  purchase_type          String?   @db.VarChar(50)
+  purchase_status        String    @db.VarChar(50)
+  purchase_duration      Int
+  purchase_created_at    DateTime? @db.DateTime(0)
+  purchase_modified_at   DateTime? @db.DateTime(0)
+  purchase_deleted_at    DateTime? @db.DateTime(0)
+  packages               packages  @relation(fields: [package_package_id], references: [package_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_purchase_package_packages1")
+  user                   user      @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_purchase_package_user1")
+
+  @@id([purchase_id, package_package_id, user_user_id])
+  @@index([package_package_id], map: "fk_user_purchase_package_packages1_idx")
+  @@index([user_user_id], map: "fk_user_purchase_package_user1_idx")
+}
+
+model video {
+  video_id              BigInt                  @id @default(autoincrement())
+  video_title           String                  @db.VarChar(50)
+  video_description     String?                 @map("video-description") @db.VarChar(200)
+  video_duration        Int?
+  video_file            String?                 @db.Text
+  video_thumbnail       String?                 @db.Text
+  video_is_featured     Int                     @db.TinyInt
+  video_from_date       DateTime?               @db.DateTime(0)
+  video_to_date         DateTime?               @db.DateTime(0)
+  category_category_id  String?                 @db.Text
+  video_created_at      DateTime?               @db.DateTime(0)
+  video_modified_at     DateTime?               @db.DateTime(0)
+  video_deleted_at      DateTime?               @db.DateTime(0)
+  mind_plan             mind_plan[]
+  user_exercise_history user_exercise_history[]
+}
+
+model water {
+  water_id          BigInt    @id @default(autoincrement())
+  water_serving     Int
+  water_date        DateTime  @db.DateTime(0)
+  water_created_at  DateTime? @db.DateTime(0)
+  water_modified_at DateTime? @db.DateTime(0)
+  water_deleted_at  DateTime? @db.DateTime(0)
+  history           history[]
+}
